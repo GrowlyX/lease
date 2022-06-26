@@ -1,0 +1,24 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
+}
+
+group "io.liftgate.lease"
+version "0.0.1"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    testCompileOnly "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
+}
+
+compileKotlin {
+    kotlinOptions.javaParameters = true
+    kotlinOptions.jvmTarget = "11"
+}
+
+test {
+    useJUnitPlatform()
+}

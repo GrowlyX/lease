@@ -18,6 +18,8 @@ class Lease<T>(
     private var value: T? = null
     private var valueExpired: T? = null
 
+    private var computing = false
+
     init
     {
         LeaseDependency.leases.add(this)
@@ -38,11 +40,21 @@ class Lease<T>(
         this.value = null
     }
 
-    private fun compute() =
-        this.compute.invoke()
-            .apply {
-                value = this
+    private fun compute(): T?
+    {
+        this.computing = true
+
+        runCatching(compute)
+            .onFailure {
+                it.printStackTrace()
             }
+            .onSuccess {
+                this.value = it
+            }
+
+        this.computing = false
+        return this.value
+    }
 
     private fun asyncCompute()
     {
@@ -56,6 +68,11 @@ class Lease<T>(
     {
         if (this.value == null)
         {
+            if (this.computing)
+            {
+                return this.valueExpired
+            }
+
             return when (strategy)
             {
                 LeaseStrategy.Compute, LeaseStrategy.Eager -> this.compute()
